@@ -1,0 +1,12 @@
+{
+  "name": "studio",
+  "version": "1.0.0",
+  "description": "Bangla AI Studio Components",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "sideEffects": false,
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}

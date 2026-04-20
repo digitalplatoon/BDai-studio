@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bangla-green: #006A4E;
+  --bangla-red: #F42A41;
+  --bangla-gold: #FFD700;
+  --background: #0a0f0d;
+  --foreground: #e8f5f0;
+}
+
+* {
+  font-family: 'Noto Sans Bengali', 'Hind Siliguri', system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Noto Sans Bengali', 'Hind Siliguri', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0f0d;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #006A4E;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #008f6b;
+}
+
+/* Bangla Pattern Background */
+.bangla-pattern {
+  background-color: #0a0f0d;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(0, 106, 78, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(244, 42, 65, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(255, 215, 0, 0.03) 0%, transparent 50%);
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+  background: rgba(17, 26, 23, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 106, 78, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.glass-card:hover {
+  border-color: rgba(0, 106, 78, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 106, 78, 0.1);
+}
+
+/* Primary Button */
+.btn-primary {
+  background: linear-gradient(135deg, #006A4E 0%, #008f6b 100%);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 106, 78, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e8f5f0;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 106, 78, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 106, 78, 0.1);
+  border-color: rgba(0, 106, 78, 0.5);
+}
+
+/* Input Fields */
+.input-bangla {
+  background: rgba(17, 26, 23, 0.9);
+  border: 1px solid rgba(0, 106, 78, 0.3);
+  color: #e8f5f0;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.input-bangla:focus {
+  outline: none;
+  border-color: #006A4E;
+  box-shadow: 0 0 0 3px rgba(0, 106, 78, 0.2);
+}
+
+.input-bangla::placeholder {
+  color: rgba(232, 245, 240, 0.4);
+}
+
+/* Tab Navigation */
+.tab-active {
+  background: linear-gradient(135deg, #006A4E 0%, #008f6b 100%);
+  color: white;
+  font-weight: 600;
+}
+
+.tab-inactive {
+  background: transparent;
+  color: rgba(232, 245, 240, 0.6);
+  font-weight: 500;
+}
+
+.tab-inactive:hover {
+  color: #e8f5f0;
+  background: rgba(0, 106, 78, 0.1);
+}
+
+/* Glow Effects */
+.glow-green {
+  box-shadow: 0 0 20px rgba(0, 106, 78, 0.3);
+}
+
+.glow-red {
+  box-shadow: 0 0 20px rgba(244, 42, 65, 0.3);
+}
+
+/* Loading Animation */
+@keyframes spin-bangla {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  border: 3px solid rgba(0, 106, 78, 0.2);
+  border-top-color: #006A4E;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin-bangla 0.8s linear infinite;
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #006A4E 0%, #00d9a3 50%, #FFD700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Red Circle (Bangladesh flag motif) */
+.red-circle {
+  width: 40px;
+  height: 40px;
+  background: #F42A41;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(244, 42, 65, 0.4);
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+/* Selection Color */
+::selection {
+  background: rgba(0, 106, 78, 0.3);
+  color: #fff;
+}

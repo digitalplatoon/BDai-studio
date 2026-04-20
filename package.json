@@ -1,0 +1,50 @@
+{
+  "name": "bangla-ai-studio",
+  "version": "1.0.0",
+  "description": "Bangla AI Image & Video Generation Studio - Open Source",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "electron:build": "electron-builder",
+    "electron:build:win": "electron-builder --win",
+    "electron:build:linux": "electron-builder --linux",
+    "electron:build:all": "electron-builder -mwl"
+  },
+  "workspaces": [
+    "packages/studio"
+  ],
+  "dependencies": {
+    "next": "14.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "studio": "file:packages/studio"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.0.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "build": {
+    "appId": "com.banglaai.studio",
+    "productName": "Bangla AI Studio",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "app/**/*",
+      "components/**/*",
+      "packages/**/*",
+      "public/**/*",
+      "next.config.mjs",
+      "package.json"
+    ]
+  }
+}
