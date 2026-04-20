@@ -1,4 +1,6 @@
 // Bangla Translation Dictionary
+import { useEffect, useState } from 'react';
+
 export const bn = {
   "Image Studio": "ইমেজ স্টুডিও",
   "Video Studio": "ভিডিও স্টুডিও",
@@ -72,9 +74,73 @@ export const bn = {
   "API Key Required": "এপিআই কি প্রয়োজন",
   "Enter your Muapi.ai API key to start generating AI images and videos": "এআই ইমেজ ও ভিডিও জেনারেট করতে আপনার Muapi.ai এপিআই কি দিন",
   "Get your API key from": "আপনার এপিআই কি সংগ্রহ করুন",
+  "Language": "ভাষা",
+  "English": "ইংরেজি",
+  "Bangla": "বাংলা",
 };
 
-// Translation helper
+// Supported languages
+export const LANGUAGES = {
+  en: { code: 'en', label: 'English' },
+  bn: { code: 'bn', label: 'বাংলা' },
+};
+
+const STORAGE_KEY = 'bangla_lang';
+const DEFAULT_LANG = 'en';
+
+// Module-level language state (single source of truth)
+let currentLang = DEFAULT_LANG;
+const listeners = new Set();
+
+// Initialize from localStorage on client only
+if (typeof window !== 'undefined') {
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored === 'en' || stored === 'bn') {
+      currentLang = stored;
+    }
+  } catch (e) {
+    // localStorage unavailable; keep default
+  }
+}
+
+export function getLanguage() {
+  return currentLang;
+}
+
+export function setLanguage(lang) {
+  if (lang !== 'en' && lang !== 'bn') return;
+  if (lang === currentLang) return;
+  currentLang = lang;
+  if (typeof window !== 'undefined') {
+    try { window.localStorage.setItem(STORAGE_KEY, lang); } catch (e) {}
+  }
+  listeners.forEach((fn) => {
+    try { fn(lang); } catch (e) {}
+  });
+}
+
+export function subscribeLanguage(fn) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+// Translation helper — returns English key as-is when lang === 'en'
 export function t(key) {
-  return bn[key] || key;
+  if (currentLang === 'bn') {
+    return bn[key] || key;
+  }
+  return key;
+}
+
+// React hook — re-renders the calling component when the language changes
+export function useLanguage() {
+  const [lang, setLang] = useState(currentLang);
+  useEffect(() => {
+    // Sync in case language was changed before this component mounted
+    setLang(currentLang);
+    const unsubscribe = subscribeLanguage((newLang) => setLang(newLang));
+    return unsubscribe;
+  }, []);
+  return [lang, setLanguage];
 }

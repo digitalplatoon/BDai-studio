@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ImageStudio, VideoStudio, LipSyncStudio, CinemaStudio, t } from 'studio';
+import { ImageStudio, VideoStudio, LipSyncStudio, CinemaStudio, t, useLanguage } from 'studio';
 
-const TABS = [
-  { id: 'image', label: t('Image Studio'), icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
-  { id: 'video', label: t('Video Studio'), icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z' },
-  { id: 'lipsync', label: t('Lip Sync'), icon: 'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z' },
-  { id: 'cinema', label: t('Cinema'), icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z' },
+const TAB_DEFS = [
+  { id: 'image', labelKey: 'Image Studio', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
+  { id: 'video', labelKey: 'Video Studio', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z' },
+  { id: 'lipsync', labelKey: 'Lip Sync', icon: 'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z' },
+  { id: 'cinema', labelKey: 'Cinema', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z' },
 ];
 
 export default function StandaloneShell() {
@@ -15,6 +15,8 @@ export default function StandaloneShell() {
   const [apiKey, setApiKey] = useState('');
   const [showSettings, setShowSettings] = useState(false);
   const [tempApiKey, setTempApiKey] = useState('');
+  // Subscribe to language changes so all t() calls below re-evaluate on toggle
+  const [lang, setLang] = useLanguage();
 
   // Load API key from localStorage
   useEffect(() => {
@@ -39,6 +41,11 @@ export default function StandaloneShell() {
     setShowSettings(false);
   };
 
+  const toggleLang = () => setLang(lang === 'en' ? 'bn' : 'en');
+
+  // Build TABS inside render so labels re-translate on language switch
+  const tabs = TAB_DEFS.map((tab) => ({ ...tab, label: t(tab.labelKey) }));
+
   return (
     <div className="flex flex-col h-screen bangla-pattern">
       {/* Header */}
@@ -57,7 +64,7 @@ export default function StandaloneShell() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-1 bg-white/5 rounded-xl p-1">
-            {TABS.map((tab) => (
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -76,9 +83,23 @@ export default function StandaloneShell() {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {/* Language toggle */}
+            <button
+              onClick={toggleLang}
+              aria-label={t('Language')}
+              title={t('Language')}
+              className="h-10 px-3 rounded-full bg-white/5 border border-white/10 flex items-center gap-2 text-white/70 hover:text-white hover:bg-white/10 transition-all text-sm font-medium"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+              </svg>
+              <span>{lang === 'en' ? 'বাংলা' : 'EN'}</span>
+            </button>
+
             <button 
               onClick={() => setShowSettings(true)}
+              aria-label={t('Settings')}
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +112,7 @@ export default function StandaloneShell() {
 
         {/* Mobile Navigation */}
         <div className="md:hidden flex overflow-x-auto px-4 pb-2 gap-1">
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -125,7 +146,7 @@ export default function StandaloneShell() {
               onClick={() => setShowSettings(true)}
               className="btn-primary"
             >
-              {t('Enter API Key')}
+              {t('Enter your API key')}
             </button>
           </div>
         ) : (
@@ -144,12 +165,31 @@ export default function StandaloneShell() {
           <div className="glass-card rounded-2xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-white">{t('Settings')}</h2>
-              <button onClick={() => setShowSettings(false)} className="text-white/40 hover:text-white">
+              <button onClick={() => setShowSettings(false)} aria-label={t('Close')} className="text-white/40 hover:text-white">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* Language selector inside settings */}
+              <div>
+                <label className="block text-white/60 text-sm mb-2">{t('Language')}</label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setLang('en')}
+                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${lang === 'en' ? 'bg-bangla-green text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => setLang('bn')}
+                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${lang === 'bn' ? 'bg-bangla-green text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
+                  >
+                    বাংলা
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-white/60 text-sm mb-2">{t('API Key')}</label>
                 <input
@@ -162,7 +202,7 @@ export default function StandaloneShell() {
                 <p className="text-white/30 text-xs mt-2">{t('Get your API key from')} <a href="https://muapi.ai" target="_blank" rel="noopener noreferrer" className="text-bangla-green hover:underline">muapi.ai</a></p>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-2">
                 <button onClick={saveApiKey} className="btn-primary flex-1">{t('Save')}</button>
                 {apiKey && (
                   <button onClick={clearApiKey} className="btn-secondary">{t('Clear')}</button>
