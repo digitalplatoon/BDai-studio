@@ -159,7 +159,7 @@ export default function StandaloneShell() {
                   placeholder={t('Enter your API key')}
                   className="input-bangla"
                 />
-                <p className="text-white/30 text-xs mt-2">Get your API key from <a href="https://muapi.ai" target="_blank" rel="noopener noreferrer" className="text-bangla-green hover:underline">muapi.ai</a></p>
+                <p className="text-white/30 text-xs mt-2">{t('Get your API key from')} <a href="https://muapi.ai" target="_blank" rel="noopener noreferrer" className="text-bangla-green hover:underline">muapi.ai</a></p>
               </div>
 
               <div className="flex gap-3 pt-4">

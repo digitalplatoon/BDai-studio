@@ -5,7 +5,6 @@ import { lipSyncModels } from '../models';
 
 export default function LipSyncStudio({ apiKey, onGenerationComplete, historyItems }) {
   const PERSIST_KEY = "bangla_lipsync_studio";
-  const UPLOAD_STATE = { IDLE: 'idle', UPLOADING: 'uploading', DONE: 'done', ERROR: 'error' };
 
   const [inputMode, setInputMode] = useState('image'); // 'image' or 'video'
   const [selectedModelId, setSelectedModelId] = useState(lipSyncModels[0].id);
@@ -26,6 +25,22 @@ export default function LipSyncStudio({ apiKey, onGenerationComplete, historyIte
 
   // Filter models by type
   const currentModels = lipSyncModels.filter(m => m.type === inputMode);
+
+  // Ensure selected model matches current input mode
+  useEffect(() => {
+    const modelMatchesMode = lipSyncModels.find(
+      m => m.id === selectedModelId && m.type === inputMode
+    );
+    if (!modelMatchesMode && currentModels.length > 0) {
+      const first = currentModels[0];
+      setSelectedModelId(first.id);
+      setSelectedModelName(first.name);
+      if (first.resolutions.length > 0) {
+        setSelectedResolution(first.resolutions[first.resolutions.length - 1]);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputMode]);
 
   useEffect(() => {
     try {
@@ -66,7 +81,7 @@ export default function LipSyncStudio({ apiKey, onGenerationComplete, historyIte
       if (type === 'audio') setAudioUrl(url);
     } catch (err) {
       console.error('Upload failed:', err);
-      alert('Upload failed');
+      alert(t('Upload failed'));
     }
   };
 
@@ -165,13 +180,13 @@ export default function LipSyncStudio({ apiKey, onGenerationComplete, historyIte
           {/* Mode Toggle */}
           <div className="flex items-center gap-2 mb-3">
             <button 
-              onClick={() => { setInputMode('image'); setImageUrl(null); setVideoUrl(null); }}
+              onClick={() => { if (inputMode !== 'image') { setInputMode('image'); setImageUrl(null); setVideoUrl(null); } }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${inputMode === 'image' ? 'bg-bangla-green text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
             >
               {t('Portrait Image')}
             </button>
             <button 
-              onClick={() => { setInputMode('video'); setImageUrl(null); setVideoUrl(null); }}
+              onClick={() => { if (inputMode !== 'video') { setInputMode('video'); setImageUrl(null); setVideoUrl(null); } }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${inputMode === 'video' ? 'bg-bangla-green text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
             >
               {t('Video')}

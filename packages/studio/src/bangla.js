@@ -62,6 +62,16 @@ export const bn = {
   "Bangla AI Studio": "বাংলা এআই স্টুডিও",
   "Uncensored AI Image & Video Generation": "অনসেন্সড এআই ইমেজ এবং ভিডিও জেনারেশন",
   "Free, open-source, unrestricted": "বিনামূল্যে, ওপেন-সোর্স, বিনা বিধি-নিষেধ",
+  "No video URL returned": "কোনো ভিডিও URL ফেরত আসেনি",
+  "Please upload a portrait image": "অনুগ্রহ করে একটি পোর্ট্রেইট ছবি আপলোড করুন",
+  "Please upload a video": "অনুগ্রহ করে একটি ভিডিও আপলোড করুন",
+  "Please upload an audio file": "অনুগ্রহ করে একটি অডিও ফাইল আপলোড করুন",
+  "No prompt": "কোনো প্রম্পট নেই",
+  "Describe the cinematic scene": "সিনেম্যাটিক দৃশ্যের বর্ণনা দিন",
+  "Upload failed": "আপলোড ব্যর্থ হয়েছে",
+  "API Key Required": "এপিআই কি প্রয়োজন",
+  "Enter your Muapi.ai API key to start generating AI images and videos": "এআই ইমেজ ও ভিডিও জেনারেট করতে আপনার Muapi.ai এপিআই কি দিন",
+  "Get your API key from": "আপনার এপিআই কি সংগ্রহ করুন",
 };
 
 // Translation helper
