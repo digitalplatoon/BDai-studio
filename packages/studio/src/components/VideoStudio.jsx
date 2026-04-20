@@ -5,7 +5,6 @@ import { t2vModels, i2vModels, getDurationsForModel } from '../models';
 
 export default function VideoStudio({ apiKey, onGenerationComplete, historyItems }) {
   const PERSIST_KEY = "bangla_video_studio";
-  const UPLOAD_STATE = { IDLE: 'idle', UPLOADING: 'uploading', DONE: 'done', ERROR: 'error' };
 
   const [videoMode, setVideoMode] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState(t2vModels[0].id);
@@ -69,7 +68,7 @@ export default function VideoStudio({ apiKey, onGenerationComplete, historyItems
       }
     } catch (err) {
       console.error('Upload failed:', err);
-      alert('Upload failed');
+      alert(t('Upload failed'));
     }
   };
 

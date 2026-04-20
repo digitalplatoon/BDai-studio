@@ -93,7 +93,7 @@ export default function CinemaStudio({ apiKey, onGenerationComplete, historyItem
         model: "nano-banana-pro",
         prompt: finalPrompt,
         aspect_ratio: settings.aspect_ratio,
-        resolution: resolution.toLowerCase(),
+        resolution,
         negative_prompt: "blurry, low quality, distortion, bad composition",
       });
 
@@ -192,6 +192,7 @@ export default function CinemaStudio({ apiKey, onGenerationComplete, historyItem
               value={settings.prompt} 
               onChange={(e) => setSettings(prev => ({ ...prev, prompt: e.target.value }))}
               placeholder={t('Describe the cinematic scene')}
+              aria-label={t('Describe the cinematic scene')}
               className="input-bangla flex-1 resize-none min-h-[52px] max-h-[150px]" 
               rows={1} 
             />

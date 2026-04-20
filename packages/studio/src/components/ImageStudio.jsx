@@ -167,7 +167,7 @@ function UploadPicker({ apiKey, onSelect, onClear, maxImages = 1, selectedUrls =
                   <div
                     key={idx}
                     onClick={() => !atMax && entry.url && handleCellClick(entry)}
-                    className={`relative rounded-lg overflow-hidden border-2 cursor-pointer aspect-square transition-all ${
+                    className={`group relative rounded-lg overflow-hidden border-2 cursor-pointer aspect-square transition-all ${
                       isSelected 
                         ? 'border-bangla-green shadow-glow' 
                         : 'border-white/10 hover:border-white/30'
@@ -299,8 +299,6 @@ export default function ImageStudio({ apiKey, onGenerationComplete, historyItems
   const [generateError, setGenerateError] = useState(null);
   const [fullscreenUrl, setFullscreenUrl] = useState(null);
 
-  const [currentImageUrl, setCurrentImageUrl] = useState(null);
-  const [activeHistoryIdx, setActiveHistoryIdx] = useState(0);
   const [localHistory, setLocalHistory] = useState([]);
 
   const history = historyItems ?? localHistory;
@@ -414,8 +412,6 @@ export default function ImageStudio({ apiKey, onGenerationComplete, historyItems
     if (!historyItems) {
       setLocalHistory(prev => [entry, ...prev.slice(0, 49)]);
     }
-    setActiveHistoryIdx(0);
-    setCurrentImageUrl(entry.url);
   }, [historyItems]);
 
   const handleGenerate = async () => {
