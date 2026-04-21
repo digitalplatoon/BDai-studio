@@ -46,23 +46,39 @@ function UploadPicker({ apiKey, onSelect, onClear, maxImages = 1, selectedUrls =
       file,
       progress: 0,
       timestamp: Date.now(),
+      error: null,
     }));
 
     setUploadHistory(prev => [...newEntries, ...prev]);
     setPanelOpen(true);
 
-    // Upload files
+    // Upload files sequentially with proper index tracking
     for (let i = 0; i < newEntries.length; i++) {
       try {
         const url = await uploadFile(apiKey, newEntries[i].file);
         setUploadHistory(prev => {
+          // Find and update the specific entry by timestamp to avoid index mismatches
           const updated = [...prev];
-          updated[i] = { ...updated[i], url, progress: 100 };
-          saveHistory(updated);
+          const entryIdx = updated.findIndex(e => e.timestamp === newEntries[i].timestamp);
+          if (entryIdx !== -1) {
+            updated[entryIdx] = { ...updated[entryIdx], url, progress: 100, error: null };
+            saveHistory(updated);
+          }
           return updated;
         });
       } catch (err) {
         console.error('Upload failed:', err);
+        const errMsg = err.message || 'Upload failed';
+        setUploadHistory(prev => {
+          const updated = [...prev];
+          const entryIdx = updated.findIndex(e => e.timestamp === newEntries[i].timestamp);
+          if (entryIdx !== -1) {
+            updated[entryIdx] = { ...updated[entryIdx], error: errMsg, progress: 0 };
+            saveHistory(updated);
+          }
+          return updated;
+        });
+        alert(`${t('Upload failed')}: ${errMsg}`);
       }
     }
   };
@@ -170,14 +186,24 @@ function UploadPicker({ apiKey, onSelect, onClear, maxImages = 1, selectedUrls =
                     className={`group relative rounded-lg overflow-hidden border-2 cursor-pointer aspect-square transition-all ${
                       isSelected 
                         ? 'border-bangla-green shadow-glow' 
+                        : entry.error
+                        ? 'border-red-500/50 hover:border-red-500'
                         : 'border-white/10 hover:border-white/30'
-                    } ${atMax ? 'opacity-40 cursor-not-allowed' : ''}`}
+                    } ${atMax && !isSelected ? 'opacity-40 cursor-not-allowed' : ''}`}
                   >
-                    {entry.url ? (
+                    {entry.error ? (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-red-500/10">
+                        <svg className="w-6 h-6 text-red-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-xs text-red-400 font-semibold text-center px-1">{t('Error')}</span>
+                      </div>
+                    ) : entry.url ? (
                       <img src={entry.url} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-white/5">
-                        <div className="loading-spinner" />
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-white/5">
+                        <div className="loading-spinner mb-2" />
+                        <span className="text-xs text-white/40">{Math.round(entry.progress)}%</span>
                       </div>
                     )}
 
