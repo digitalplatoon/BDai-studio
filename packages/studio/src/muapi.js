@@ -53,23 +53,67 @@ async function pollResult(apiKey, requestId, maxAttempts = 60) {
 
 // Upload file to Muapi
 export async function uploadFile(apiKey, file) {
+  if (!apiKey || apiKey.trim() === '') {
+    throw new Error('API key is required');
+  }
+
+  if (!file || !(file instanceof File)) {
+    throw new Error('Invalid file provided');
+  }
+
+  // Check file size (limit to 100MB)
+  const MAX_FILE_SIZE = 100 * 1024 * 1024;
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error(`File size exceeds 100MB limit (${(file.size / 1024 / 1024).toFixed(1)}MB)`);
+  }
+
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch(`${API_BASE}/api/v1/upload_file`, {
-    method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-    },
-    body: formData,
-  });
+  try {
+    const response = await fetch(`${API_BASE}/api/v1/upload_file`, {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+      },
+      body: formData,
+    });
 
-  if (!response.ok) {
-    throw new Error('File upload failed');
+    if (!response.ok) {
+      let errorMsg = `Upload failed (${response.status})`;
+      
+      if (response.status === 401) {
+        errorMsg = 'Invalid or expired API key';
+      } else if (response.status === 403) {
+        errorMsg = 'API key does not have permission to upload';
+      } else if (response.status === 429) {
+        errorMsg = 'Rate limit exceeded. Please wait before retrying.';
+      } else if (response.status === 413) {
+        errorMsg = 'File is too large';
+      }
+      
+      try {
+        const error = await response.json();
+        if (error.message) errorMsg = error.message;
+      } catch (e) {
+        // Fallback to status-based message
+      }
+      
+      throw new Error(errorMsg);
+    }
+
+    const data = await response.json();
+    if (!data.url) {
+      throw new Error('No URL returned from server');
+    }
+
+    return data.url;
+  } catch (err) {
+    if (err instanceof TypeError) {
+      throw new Error('Network error: Unable to reach upload server');
+    }
+    throw err;
   }
-
-  const data = await response.json();
-  return data.url;
 }
 
 // Generate Image (Text to Image)

@@ -77,6 +77,8 @@ export const bn = {
   "Language": "ভাষা",
   "English": "ইংরেজি",
   "Bangla": "বাংলা",
+  "File upload failed": "ফাইল আপলোড ব্যর্থ হয়েছে",
+  "Invalid API key": "অবৈধ এপিআই কি",
 };
 
 // Supported languages
