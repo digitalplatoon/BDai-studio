@@ -71,7 +71,8 @@ export async function uploadFile(apiKey, file) {
   formData.append('file', file);
 
   try {
-    const response = await fetch(`${API_BASE}/api/v1/upload_file`, {
+    // Use local API route to avoid CORS issues
+    const response = await fetch(`/api/upload`, {
       method: 'POST',
       headers: {
         'x-api-key': apiKey,
