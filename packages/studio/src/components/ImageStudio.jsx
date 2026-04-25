@@ -84,11 +84,12 @@ function UploadPicker({ apiKey, onSelect, onClear, maxImages = 1, selectedUrls =
   };
 
   const handleCellClick = (entry) => {
+    if (!entry.url) return; // Can't select failed/pending uploads
     if (maxImages > 1) {
       // Multi-select mode
-      const exists = selectedEntries.find(e => e.url === entry.url);
+      const exists = selectedEntries.find(e => e.timestamp === entry.timestamp);
       if (exists) {
-        setSelectedEntries(prev => prev.filter(e => e.url !== entry.url));
+        setSelectedEntries(prev => prev.filter(e => e.timestamp !== entry.timestamp));
       } else if (selectedEntries.length < maxImages) {
         setSelectedEntries(prev => [...prev, entry]);
       }
@@ -108,14 +109,16 @@ function UploadPicker({ apiKey, onSelect, onClear, maxImages = 1, selectedUrls =
     setPanelOpen(false);
   };
 
-  const handleRemove = (e, url) => {
+  const handleRemove = (e, entry) => {
     e.stopPropagation();
     setUploadHistory(prev => {
-      const updated = prev.filter(item => item.url !== url);
+      // Remove by timestamp to handle failed uploads without URLs
+      const updated = prev.filter(item => item.timestamp !== entry.timestamp);
       saveHistory(updated);
       return updated;
     });
-    setSelectedEntries(prev => prev.filter(item => item.url !== url));
+    // Remove from selections if it was selected
+    setSelectedEntries(prev => prev.filter(item => item.timestamp !== entry.timestamp));
   };
 
   const isMulti = maxImages > 1;
@@ -175,7 +178,7 @@ function UploadPicker({ apiKey, onSelect, onClear, maxImages = 1, selectedUrls =
           ) : (
             <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
               {uploadHistory.map((entry, idx) => {
-                const selIdx = selectedEntries.findIndex(e => e.url === entry.url);
+                const selIdx = selectedEntries.findIndex(e => e.timestamp === entry.timestamp);
                 const isSelected = selIdx !== -1;
                 const atMax = isMulti && !isSelected && selectedEntries.length >= maxImages;
 
@@ -214,8 +217,9 @@ function UploadPicker({ apiKey, onSelect, onClear, maxImages = 1, selectedUrls =
                     )}
 
                     <button
-                      onClick={(e) => handleRemove(e, entry.url)}
+                      onClick={(e) => handleRemove(e, entry)}
                       className="absolute top-1 left-1 w-5 h-5 bg-red-500/80 rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
+                      title={entry.error ? "Remove failed upload" : "Remove"}
                     >
                       ×
                     </button>
@@ -376,6 +380,34 @@ export default function ImageStudio({ apiKey, onGenerationComplete, historyItems
     }, 500);
     return () => clearTimeout(timer);
   }, [imageMode, selectedModelId, selectedModelName, selectedAr, selectedQuality, maxImages, prompt, uploadedImageUrls, localHistory]);
+
+  // Reset model and state when toggling between T2I and I2I
+  useEffect(() => {
+    if (imageMode) {
+      // Switching to I2I mode: ensure a valid i2i model is selected
+      const modelExists = i2iModels.find(m => m.id === selectedModelId);
+      if (!modelExists && i2iModels.length > 0) {
+        const firstI2I = i2iModels[0];
+        setSelectedModelId(firstI2I.id);
+        setSelectedModelName(firstI2I.name);
+        setSelectedAr(getAspectRatiosForI2IModel(firstI2I.id)[0] || "1:1");
+        setSelectedQuality(getResolutionsForI2IModel(firstI2I.id)[0] || null);
+      }
+    } else {
+      // Switching to T2I mode: ensure a valid t2i model is selected
+      const modelExists = t2iModels.find(m => m.id === selectedModelId);
+      if (!modelExists && t2iModels.length > 0) {
+        const firstT2I = t2iModels[0];
+        setSelectedModelId(firstT2I.id);
+        setSelectedModelName(firstT2I.name);
+        setSelectedAr(getAspectRatiosForModel(firstT2I.id)[0] || "1:1");
+        setSelectedQuality(getResolutionsForModel(firstT2I.id)[0] || null);
+      }
+      // Clear uploaded images when exiting I2I mode
+      setUploadedImageUrls([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageMode]);
 
   // Derived values
   const currentModels = imageMode ? i2iModels : t2iModels;

@@ -109,7 +109,7 @@ export default function CinemaStudio({ apiKey, onGenerationComplete, historyItem
         throw new Error(t('No image URL returned'));
       }
     } catch (e) {
-      console.error(e);
+      console.error("[CinemaStudio] Generation failed:", e);
       setGenerateError(e.message);
       setTimeout(() => setGenerateError(null), 4000);
     } finally {
