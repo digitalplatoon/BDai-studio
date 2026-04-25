@@ -26,7 +26,7 @@ export default function LipSyncStudio({ apiKey, onGenerationComplete, historyIte
   // Filter models by type
   const currentModels = lipSyncModels.filter(m => m.type === inputMode);
 
-  // Ensure selected model matches current input mode
+  // Ensure selected model matches current input mode and clear irrelevant URLs
   useEffect(() => {
     const modelMatchesMode = lipSyncModels.find(
       m => m.id === selectedModelId && m.type === inputMode
@@ -38,6 +38,13 @@ export default function LipSyncStudio({ apiKey, onGenerationComplete, historyIte
       if (first.resolutions.length > 0) {
         setSelectedResolution(first.resolutions[first.resolutions.length - 1]);
       }
+    }
+    
+    // Clear irrelevant URLs when switching modes
+    if (inputMode === 'image') {
+      setVideoUrl(null);
+    } else {
+      setImageUrl(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputMode]);
