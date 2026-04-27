@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../bangla';
-import { generateLipSync, uploadFile } from '../muapi';
+import { generateLipSync, uploadFile } from '../providers';
 import { lipSyncModels } from '../models';
 
 export default function LipSyncStudio({ apiKey, onGenerationComplete, historyItems }) {

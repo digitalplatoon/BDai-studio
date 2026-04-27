@@ -19,7 +19,7 @@ importers:
         version: 18.3.1(react@18.3.1)
       studio:
         specifier: file:packages/studio
-        version: file:packages/studio(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: link:packages/studio
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -45,6 +45,15 @@ importers:
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
+
+  packages/studio:
+    dependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.0.0
+        version: 18.3.1(react@18.3.1)
 
 packages:
 
@@ -1391,12 +1400,6 @@ packages:
   strip-ansi@7.2.0:
     resolution: {integrity: sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w==}
     engines: {node: '>=12'}
-
-  studio@file:packages/studio:
-    resolution: {directory: packages/studio, type: directory}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
 
   styled-jsx@5.1.1:
     resolution: {integrity: sha512-pW7uC1l4mBZ8ugbiZrcIsiIvVx1UmTfw7UkC3Um2tmfUq9Bhk8IiyEIPl6F8agHgjzku6j0xQEZbfA5uSgSaCw==}
@@ -3002,11 +3005,6 @@ snapshots:
   strip-ansi@7.2.0:
     dependencies:
       ansi-regex: 6.2.2
-
-  studio@file:packages/studio(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
 
   styled-jsx@5.1.1(react@18.3.1):
     dependencies:

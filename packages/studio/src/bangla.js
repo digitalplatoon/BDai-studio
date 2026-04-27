@@ -81,6 +81,8 @@ export const bn = {
   "Invalid API key": "অবৈধ এপিআই কি",
   "What would you shoot with infinite budget?": "অসীম বাজেট থাকলে আপনি কী শুট করবেন?",
   "Animate portraits or sync lips to audio with AI": "এআই দিয়ে পোর্ট্রেইট অ্যানিমেট করুন বা অডিওর সাথে লিপ সিঙ্ক করুন",
+  "API Key cannot be empty": "এপিআই কি খালি থাকতে পারে না",
+  "Model URL cannot be empty": "মডেল ইউআরএল খালি থাকতে পারে না",
 };
 
 // Supported languages

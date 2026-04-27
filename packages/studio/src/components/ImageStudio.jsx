@@ -4,7 +4,7 @@ import {
   generateImage, 
   generateI2I, 
   uploadFile 
-} from '../muapi';
+} from '../providers';
 import { 
   t2iModels, 
   i2iModels,

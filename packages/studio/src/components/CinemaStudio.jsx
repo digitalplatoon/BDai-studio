@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../bangla';
-import { generateImage } from '../muapi';
+import { generateImage } from '../providers';
 
 const CAMERAS = [
   "Modular 8K Digital",

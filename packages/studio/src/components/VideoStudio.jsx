@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { t } from '../bangla';
-import { generateVideo, generateI2V, uploadFile } from '../muapi';
+import { generateVideo, generateI2V, uploadFile } from '../providers';
 import { t2vModels, i2vModels, getDurationsForModel } from '../models';
 
 export default function VideoStudio({ apiKey, onGenerationComplete, historyItems }) {
