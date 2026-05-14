@@ -21,7 +21,7 @@ export const PROVIDERS = {
 };
 
 // Provider state (stored in localStorage)
-let currentProvider = 'muapi';
+let currentProvider = 'replicate'; // Default to Replicate
 let providerConfig = {
   muapi: {
     apiKey: localStorage.getItem('bangla_muapi_key') || '',
@@ -32,10 +32,13 @@ let providerConfig = {
   },
 };
 
-// Initialize from localStorage
+// Initialize from localStorage or use default (Replicate)
 const savedProvider = localStorage.getItem('bangla_provider');
 if (savedProvider && PROVIDERS[savedProvider]) {
   currentProvider = savedProvider;
+} else {
+  // Default to Replicate on first load
+  localStorage.setItem('bangla_provider', 'replicate');
 }
 
 // Subscribers for provider changes

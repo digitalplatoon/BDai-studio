@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { t } from '../bangla';
-import { generateVideo, generateI2V, uploadFile } from '../providers';
+import { generateVideo, generateI2V, uploadFile, getProvider } from '../providers';
+import { addReel } from '../reels';
 import { t2vModels, i2vModels, getDurationsForModel } from '../models';
 
 export default function VideoStudio({ apiKey, onGenerationComplete, historyItems }) {
@@ -121,6 +122,20 @@ export default function VideoStudio({ apiKey, onGenerationComplete, historyItems
           timestamp: new Date().toISOString(),
         };
         addToHistory(entry);
+        
+        // Auto-save to reels
+        try {
+          addReel({
+            type: 'video',
+            url: res.url,
+            prompt: prompt.trim(),
+            provider: getProvider(),
+            model: selectedModelId,
+          });
+        } catch (reelErr) {
+          console.error("[VideoStudio] Failed to save reel:", reelErr);
+        }
+        
         onGenerationComplete?.({ url: res.url, model: selectedModelId, prompt: prompt.trim(), type: "video" });
       } else {
         throw new Error(t('No video URL returned'));
