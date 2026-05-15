@@ -17,9 +17,22 @@ export async function POST(request) {
 
     if (!model_url) {
       return NextResponse.json(
-        { message: 'Model URL is required' },
+        { message: 'Model URL/ID is required' },
         { status: 400 }
       );
+    }
+
+    // Handle both model URLs (e.g., https://replicate.com/user/model) and version IDs
+    let modelIdentifier = model_url;
+    
+    // If it's a web URL, convert to API format (user/model-name)
+    if (model_url.includes('replicate.com/')) {
+      try {
+        const url = new URL(model_url);
+        modelIdentifier = url.pathname.replace(/^\/?/, '').replace(/\/$/, '');
+      } catch (e) {
+        // Use as-is if URL parsing fails
+      }
     }
 
     // Call Replicate API
@@ -30,7 +43,7 @@ export async function POST(request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        version: model_url,
+        version: modelIdentifier,
         input: {
           ...(prompt && { prompt }),
           ...(image_url && { image: image_url }),

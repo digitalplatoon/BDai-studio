@@ -16,10 +16,10 @@ export default function StandaloneShell() {
   const [showSettings, setShowSettings] = useState(false);
   const [tempApiKey, setTempApiKey] = useState('');
   
-  // Provider state
-  const [provider, setProviderState] = useState('muapi');
-  const [replicateModelUrl, setReplicateModelUrl] = useState('');
-  const [tempReplicateModelUrl, setTempReplicateModelUrl] = useState('');
+  // Provider state - default to replicate
+  const [provider, setProviderState] = useState('replicate');
+  const [replicateModelUrl, setReplicateModelUrl] = useState('https://replicate.com/bytedance/seedance-2.0');
+  const [tempReplicateModelUrl, setTempReplicateModelUrl] = useState('https://replicate.com/bytedance/seedance-2.0');
   
   // Subscribe to language changes
   const [lang, setLang] = useLanguage();
