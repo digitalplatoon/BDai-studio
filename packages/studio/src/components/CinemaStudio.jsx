@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../bangla';
-import { generateImage } from '../muapi';
+import { generateImage, getProvider } from '../providers';
+import { addReel } from '../reels';
 
 const CAMERAS = [
   "Modular 8K Digital",
@@ -104,6 +105,20 @@ export default function CinemaStudio({ apiKey, onGenerationComplete, historyItem
           settings: { ...settings, resolution },
         };
         addToHistory(entry);
+        
+        // Auto-save to reels
+        try {
+          addReel({
+            type: 'image',
+            url: res.url,
+            prompt: settings.prompt,
+            provider: getProvider(),
+            model: 'nano-banana-pro',
+          });
+        } catch (reelErr) {
+          console.error("[CinemaStudio] Failed to save reel:", reelErr);
+        }
+        
         onGenerationComplete?.({ url: res.url, model: "nano-banana-pro", prompt: settings.prompt, type: "cinema" });
       } else {
         throw new Error(t('No image URL returned'));

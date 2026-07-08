@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../bangla';
-import { generateLipSync, uploadFile } from '../muapi';
+import { generateLipSync, uploadFile, getProvider } from '../providers';
+import { addReel } from '../reels';
 import { lipSyncModels } from '../models';
 
 export default function LipSyncStudio({ apiKey, onGenerationComplete, historyItems }) {
@@ -133,6 +134,20 @@ export default function LipSyncStudio({ apiKey, onGenerationComplete, historyIte
           timestamp: new Date().toISOString(),
         };
         addToHistory(entry);
+        
+        // Auto-save to reels
+        try {
+          addReel({
+            type: 'video',
+            url: res.url,
+            prompt: prompt.trim() || `Lip sync with ${selectedModelName}`,
+            provider: getProvider(),
+            model: selectedModelId,
+          });
+        } catch (reelErr) {
+          console.error("[LipSyncStudio] Failed to save reel:", reelErr);
+        }
+        
         onGenerationComplete?.({ url: res.url, model: selectedModelId, type: "lipsync" });
       } else {
         throw new Error(t('No video URL returned'));

@@ -3,8 +3,10 @@ import { t } from '../bangla';
 import { 
   generateImage, 
   generateI2I, 
-  uploadFile 
-} from '../muapi';
+  uploadFile,
+  getProvider
+} from '../providers';
+import { addReel } from '../reels';
 import { 
   t2iModels, 
   i2iModels,
@@ -523,6 +525,20 @@ export default function ImageStudio({ apiKey, onGenerationComplete, historyItems
           timestamp: new Date().toISOString(),
         };
         addToHistory(entry);
+        
+        // Auto-save to reels
+        try {
+          addReel({
+            type: 'image',
+            url: res.url,
+            prompt: prompt.trim(),
+            provider: getProvider(),
+            model: selectedModelId,
+          });
+        } catch (reelErr) {
+          console.error("[ImageStudio] Failed to save reel:", reelErr);
+        }
+        
         onGenerationComplete?.({
           url: res.url, model: selectedModelId, prompt: prompt.trim(), type: "image"
         });

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ImageStudio, VideoStudio, LipSyncStudio, CinemaStudio, t, useLanguage } from 'studio';
+import { ImageStudio, VideoStudio, LipSyncStudio, CinemaStudio, t, useLanguage, PROVIDERS, getProvider, setProvider, getProviderConfig, updateProviderConfig } from 'studio';
 
 const TAB_DEFS = [
   { id: 'image', labelKey: 'Image Studio', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
@@ -15,30 +15,83 @@ export default function StandaloneShell() {
   const [apiKey, setApiKey] = useState('');
   const [showSettings, setShowSettings] = useState(false);
   const [tempApiKey, setTempApiKey] = useState('');
-  // Subscribe to language changes so all t() calls below re-evaluate on toggle
+  
+  // Provider state - default to replicate
+  const [provider, setProviderState] = useState('replicate');
+  const [replicateModelUrl, setReplicateModelUrl] = useState('https://replicate.com/bytedance/seedance-2.0');
+  const [tempReplicateModelUrl, setTempReplicateModelUrl] = useState('https://replicate.com/bytedance/seedance-2.0');
+  
+  // Subscribe to language changes
   const [lang, setLang] = useLanguage();
 
-  // Load API key from localStorage
+  // Load API key and provider settings from localStorage
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('bangla_api_key');
-      if (stored) setApiKey(stored);
-    } catch (e) { console.warn('API key load failed', e); }
+      const currentProvider = getProvider();
+      setProviderState(currentProvider);
+      
+      const config = getProviderConfig(currentProvider);
+      if (config.apiKey) {
+        setApiKey(config.apiKey);
+        setTempApiKey(config.apiKey);
+      }
+      
+      if (currentProvider === 'replicate' && config.modelUrl) {
+        setReplicateModelUrl(config.modelUrl);
+        setTempReplicateModelUrl(config.modelUrl);
+      }
+    } catch (e) { 
+      console.warn('Settings load failed', e); 
+    }
   }, []);
 
   const saveApiKey = () => {
-    if (tempApiKey.trim()) {
-      localStorage.setItem('bangla_api_key', tempApiKey.trim());
-      setApiKey(tempApiKey.trim());
-      setShowSettings(false);
-      setTempApiKey('');
+    if (!tempApiKey.trim()) {
+      alert(t('API key cannot be empty'));
+      return;
     }
+
+    if (provider === 'replicate' && !tempReplicateModelUrl.trim()) {
+      alert(t('Model URL cannot be empty'));
+      return;
+    }
+
+    // Save to provider system
+    updateProviderConfig(provider, { apiKey: tempApiKey.trim() });
+    if (provider === 'replicate') {
+      updateProviderConfig(provider, { modelUrl: tempReplicateModelUrl.trim() });
+    }
+
+    setApiKey(tempApiKey.trim());
+    setReplicateModelUrl(tempReplicateModelUrl.trim());
+    setShowSettings(false);
   };
 
   const clearApiKey = () => {
-    localStorage.removeItem('bangla_api_key');
+    updateProviderConfig(provider, { apiKey: '' });
     setApiKey('');
+    setTempApiKey('');
     setShowSettings(false);
+  };
+
+  const handleProviderChange = (newProvider) => {
+    setProvider(newProvider);
+    setProviderState(newProvider);
+    
+    // Load config for new provider
+    const config = getProviderConfig(newProvider);
+    if (config.apiKey) {
+      setApiKey(config.apiKey);
+      setTempApiKey(config.apiKey);
+    } else {
+      setApiKey('');
+      setTempApiKey('');
+    }
+    
+    if (newProvider === 'replicate' && config.modelUrl) {
+      setReplicateModelUrl(config.modelUrl);
+      setTempReplicateModelUrl(config.modelUrl);
+    }
   };
 
   const toggleLang = () => setLang(lang === 'en' ? 'bn' : 'en');
@@ -46,57 +99,29 @@ export default function StandaloneShell() {
   // Build TABS inside render so labels re-translate on language switch
   const tabs = TAB_DEFS.map((tab) => ({ ...tab, label: t(tab.labelKey) }));
 
+  const hasApiKey = apiKey && (provider !== 'replicate' || replicateModelUrl);
+
   return (
     <div className="flex flex-col h-screen bangla-pattern">
-      {/* Header */}
-      <header className="border-b border-bangla-border bg-bangla-dark/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Logo */}
+      <header className="border-b border-white/10 bg-black/20 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-bangla-green flex items-center justify-center">
-              <div className="w-4 h-4 rounded-full bg-bangla-red" />
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-bangla-green to-bangla-green/60 flex items-center justify-center">
+              <span className="text-white font-bold text-lg">B</span>
             </div>
             <div>
-              <h1 className="text-white font-bold text-lg leading-tight">{t('Bangla AI Studio')}</h1>
+              <h1 className="text-white font-bold">{t('Bangla AI Studio')}</h1>
               <p className="text-white/40 text-xs">{t('Uncensored AI Image & Video Generation')}</p>
             </div>
           </div>
 
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center gap-1 bg-white/5 rounded-xl p-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === tab.id 
-                    ? 'bg-bangla-green text-white shadow-lg shadow-bangla-green/20' 
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
-                </svg>
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </nav>
-
-          {/* Actions */}
           <div className="flex items-center gap-2">
-            {/* Language toggle */}
-            <button
+            <button 
               onClick={toggleLang}
-              aria-label={t('Language')}
-              title={t('Language')}
-              className="h-10 px-3 rounded-full bg-white/5 border border-white/10 flex items-center gap-2 text-white/70 hover:text-white hover:bg-white/10 transition-all text-sm font-medium"
+              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all text-xs font-medium"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-              </svg>
-              <span>{lang === 'en' ? 'বাংলা' : 'EN'}</span>
+              {lang === 'en' ? 'বাংলা' : 'EN'}
             </button>
-
             <button 
               onClick={() => setShowSettings(true)}
               aria-label={t('Settings')}
@@ -133,7 +158,7 @@ export default function StandaloneShell() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
-        {!apiKey ? (
+        {!hasApiKey ? (
           <div className="flex flex-col items-center justify-center h-full text-white/30 p-4">
             <div className="w-20 h-20 rounded-full bg-bangla-green/10 flex items-center justify-center mb-4">
               <svg className="w-10 h-10 text-bangla-green/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,7 +166,11 @@ export default function StandaloneShell() {
               </svg>
             </div>
             <h2 className="text-xl font-bold text-white mb-2">{t('API Key Required')}</h2>
-            <p className="text-center max-w-md mb-6">{t('Enter your Muapi.ai API key to start generating AI images and videos')}</p>
+            <p className="text-center max-w-md mb-6">
+              {provider === 'replicate' 
+                ? 'Enter your Replicate API key and model URL to start generating'
+                : t('Enter your Muapi.ai API key to start generating AI images and videos')}
+            </p>
             <button 
               onClick={() => setShowSettings(true)}
               className="btn-primary"
@@ -162,7 +191,7 @@ export default function StandaloneShell() {
       {/* Settings Modal */}
       {showSettings && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-card rounded-2xl p-6 w-full max-w-md">
+          <div className="glass-card rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-white">{t('Settings')}</h2>
               <button onClick={() => setShowSettings(false)} aria-label={t('Close')} className="text-white/40 hover:text-white">
@@ -171,7 +200,7 @@ export default function StandaloneShell() {
             </div>
 
             <div className="space-y-5">
-              {/* Language selector inside settings */}
+              {/* Language selector */}
               <div>
                 <label className="block text-white/60 text-sm mb-2">{t('Language')}</label>
                 <div className="flex gap-2">
@@ -190,6 +219,27 @@ export default function StandaloneShell() {
                 </div>
               </div>
 
+              {/* API Provider selector */}
+              <div>
+                <label className="block text-white/60 text-sm mb-2">API Provider</label>
+                <div className="flex gap-2">
+                  {Object.entries(PROVIDERS).map(([key, config]) => (
+                    <button
+                      key={key}
+                      onClick={() => handleProviderChange(key)}
+                      className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        provider === key 
+                          ? 'bg-bangla-green text-white' 
+                          : 'bg-white/5 text-white/60 hover:bg-white/10'
+                      }`}
+                    >
+                      {config.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* API Key input */}
               <div>
                 <label className="block text-white/60 text-sm mb-2">{t('API Key')}</label>
                 <input
@@ -199,9 +249,37 @@ export default function StandaloneShell() {
                   placeholder={t('Enter your API key')}
                   className="input-bangla"
                 />
-                <p className="text-white/30 text-xs mt-2">{t('Get your API key from')} <a href="https://muapi.ai" target="_blank" rel="noopener noreferrer" className="text-bangla-green hover:underline">muapi.ai</a></p>
+                <p className="text-white/30 text-xs mt-2">
+                  {provider === 'replicate' 
+                    ? 'Get your API key from '
+                    : t('Get your API key from')} 
+                  <a 
+                    href={provider === 'replicate' ? 'https://replicate.com/api' : 'https://muapi.ai'} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-bangla-green hover:underline"
+                  >
+                    {provider === 'replicate' ? 'replicate.com/api' : 'muapi.ai'}
+                  </a>
+                </p>
               </div>
 
+              {/* Replicate Model URL input */}
+              {provider === 'replicate' && (
+                <div>
+                  <label className="block text-white/60 text-sm mb-2">Model URL</label>
+                  <input
+                    type="text"
+                    value={tempReplicateModelUrl}
+                    onChange={(e) => setTempReplicateModelUrl(e.target.value)}
+                    placeholder="https://replicate.com/bytedance/seedance-2.0"
+                    className="input-bangla text-xs"
+                  />
+                  <p className="text-white/30 text-xs mt-2">Enter the full Replicate model URL (e.g., bytedance/seedance-2.0 or openai/whisper)</p>
+                </div>
+              )}
+
+              {/* Save/Clear buttons */}
               <div className="flex gap-3 pt-2">
                 <button onClick={saveApiKey} className="btn-primary flex-1">{t('Save')}</button>
                 {apiKey && (
